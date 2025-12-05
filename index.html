@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tıklama Oyunu</title>
+
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        font-family: Arial;
+        padding-top: 50px;
+    }
+
+    h1 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    #btn {
+        background: #ff9800;
+        border: none;
+        padding: 25px 45px;
+        font-size: 28px;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #btn:active {
+        transform: scale(0.9);
+    }
+
+    #score {
+        font-size: 40px;
+        margin-top: 25px;
+    }
+
+    /* Reklam alanı */
+    #adbox {
+        margin-top: 40px;
+        width: 100%;
+        min-height: 120px;
+        background: #222;
+        padding: 10px;
+    }
+</style>
+
+<!-- GOOGLE REKLAM KODU -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9242534831391182"
+crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+<h1>Tıklama Oyunu</h1>
+
+<button id="btn">TIKLA</button>
+
+<div id="score">0</div>
+
+<!-- REKLAM ALANI -->
+<div id="adbox">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-9242534831391182"
+         data-ad-slot="5608564219"
+         data-ad-format="auto">
+    </ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+
+<script>
+let score = 0;
+document.getElementById("btn").onclick = function() {
+    score++;
+    document.getElementById("score").innerText = score;
+};
+</script>
+
+</body>
+</html>
