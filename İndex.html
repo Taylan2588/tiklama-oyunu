@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mini Game Platform - Girişli</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+/* Basit stil — mobil öncelikli */
+body{margin:0;font-family:Arial;background:#0b1220;color:#fff}
+header{padding:14px;text-align:center;background:#071025}
+.container{padding:12px}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.card{background:#0f1724;padding:12px;border-radius:10px;text-align:center;cursor:pointer}
+#gameFrame{width:100%;height:560px;border:none;margin-top:12px;border-radius:10px;background:#000}
+#adTop,#adBottom{width:100%;min-height:90px;background:#071822;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:10px 0}
+#loginBar{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:8px}
+.btn{background:#0ea5a4;border:none;padding:8px 12px;border-radius:8px;color:#021;cursor:pointer}
+.small{font-size:13px;color:#9aa7b2}
+#leaderboard{margin-top:12px;background:#071426;padding:8px;border-radius:8px}
+</style>
+
+<!-- AdSense (senin client zaten yerleşik) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9242534831391182" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<header>
+  <div style="display:flex;justify-content:space-between;align-items:center;max-width:980px;margin:0 auto">
+    <div><strong>Mini Game Platform</strong></div>
+    <div id="loginBar">
+      <span id="userEmail" class="small"></span>
+      <button id="btnLogin" class="btn">Giriş / Kayıt</button>
+      <button id="btnLogout" class="btn" style="display:none;background:#ef4444;color:#fff">Çıkış</button>
+    </div>
+  </div>
+</header>
+
+<div class="container" style="max-width:980px;margin:0 auto">
+  <div id="adTop">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9242534831391182" data-ad-slot="5608564219" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  </div>
+
+  <div class="games">
+    <div class="card" onclick="loadGame('games/clicker.html')">Tıklama</div>
+    <div class="card" onclick="loadGame('games/drift.html')">Drift</div>
+    <div class="card" onclick="loadGame('games/runner.html')">Koşu</div>
+    <div class="card" onclick="loadGame('games/space.html')">Uzay</div>
+  </div>
+
+  <iframe id="gameFrame" src=""></iframe>
+
+  <div id="adBottom">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9242534831391182" data-ad-slot="5608564219" data-ad-format="auto"></ins>
+  </div>
+
+  <div id="leaderboard">
+    <strong>Leaderboard (En iyi 10)</strong>
+    <ol id="boardList"></ol>
+  </div>
+</div>
+
+<!-- Auth helper (Firebase) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="/auth-firebase.js"></script>
+
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+function loadGame(url){
+  document.getElementById('gameFrame').src = url;
+  // reload ad inside iframe not possible from parent, but main page ads refresh automatically
+}
+
+// UI bindings
+document.getElementById('btnLogin').addEventListener('click', ()=>{ showLogin(); });
+document.getElementById('btnLogout').addEventListener('click', ()=>{ firebaseSignOut(); });
+
+// auth state updates
+onAuthStateChanged(user => {
+  const emailEl = document.getElementById('userEmail');
+  const loginBtn = document.getElementById('btnLogin');
+  const logoutBtn = document.getElementById('btnLogout');
+  if(user){
+    emailEl.textContent = user.email || user.displayName;
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    // load leaderboard for signed-in users
+    loadLeaderboard();
+  } else {
+    emailEl.textContent = '';
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+    loadLeaderboard(); // still show public leaderboard
+  }
+});
+
+// simple leaderboard from Firestore
+async function loadLeaderboard(){
+  const list = document.getElementById('boardList');
+  list.innerHTML = '<li>Yükleniyor...</li>';
+  try{
+    const top = await getTopScores(); // from auth-firebase.js
+    list.innerHTML = '';
+    top.forEach(r=>{
+      const li = document.createElement('li');
+      li.textContent = `${r.name || r.uid}: ${r.score}`;
+      list.appendChild(li);
+    });
+  }catch(e){
+    list.innerHTML = '<li>Yüklenemedi</li>';
+  }
+}
+
+// show login modal (simple prompt fallback)
+function showLogin(){
+  const email = prompt('E-posta (örnek: a@b.com)');
+  if(!email) return;
+  const pass = prompt('Şifre (6+ karakter)');
+  signUpOrSignIn(email, pass).then(u=>{
+    alert('Giriş başarılı: ' + (u.email||u.displayName));
+  }).catch(err=>alert('Hata: '+err.message));
+}
+</script>
+</body>
+</html>
